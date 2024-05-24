@@ -10,11 +10,16 @@ export default{
 </script>
 
 <template>
-  <div class="main-container">
-    <Navbar />
-    <RouterView />
-  </div>
+  <v-app class="app">
+    <div class="main-container">
+      <Navbar />
+      <RouterView />
+    </div>
+  </v-app>
 </template>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+.app{
+  background-color: #222;
+}
 </style>
