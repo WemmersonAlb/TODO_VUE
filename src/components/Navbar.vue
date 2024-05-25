@@ -1,6 +1,6 @@
 <template>
     <nav>
-        <router-link to="home"><img src="/img/logo.png" alt="Logo The Check List"></router-link>
+        <img src="/img/logo.png" alt="Logo The Check List">
         <h1>The Check List</h1>
     </nav>
 </template>

@@ -6,7 +6,11 @@
         <v-card-item>
           <v-card-title>
             <div class="headerCard">
-              <h1 class="titleCard">{{list.title}}</h1>
+              <div class="kitTitleList">
+                <h1 class="titleCard" v-show="!list.edit">{{list.title}}</h1>
+                <v-text-field v-model="list.title" v-show="list.edit" @keydown.enter="fimEditTitle(list)" @blur="fimEditTitle(list)"></v-text-field>
+                <v-icon icon="mdi-pencil" color="grey-darken-4" @click="inicioEditTitle(list.id)"></v-icon>
+              </div>
               <v-icon icon="mdi-close" @click="teste(a)" slot="prepend-icon" color="grey-darken-4"></v-icon>
             </div>
           </v-card-title>
@@ -42,10 +46,16 @@ export default {
   },
   methods: {
     async salvarList(idList){
+      this.data.forEach(el=>{
+        delete el.edit;
+        el.allItems.forEach(it=>{
+          delete it.edit;
+        });
+      });
       const listToUpdate = this.data.find(list=>list.id === idList);
-      const dataJson = JSON.stringify({allItems: listToUpdate.allItems});
+      const dataJson = JSON.stringify(listToUpdate);
       const req = await fetch(`https://makeyourburger-xxqo.onrender.com/allTodoList/${idList}`,{
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type" : "application/Json" },
         body: dataJson
       })
@@ -55,6 +65,21 @@ export default {
     },
     async deleteList(idList){
 
+    },
+    inicioEditTitle(idList){
+      this.data.forEach(el=>{
+        if(el.id == idList){
+          el.edit = true;
+        }
+      });
+    },
+    fimEditTitle(list){
+      this.data.forEach(el=>{
+        if(el.id == list.id){
+          el.title = list.title;
+          el.edit = false;
+        }
+      });
     },
     inicioEditItem(idList, item){
       this.data.forEach(el=>{
@@ -121,13 +146,13 @@ export default {
       let data = await req.json();
 
       data.forEach(el=>{
+        el.edit = false;
         el.allItems.forEach(it=>{
           it.edit = false;
         })
       });
-
       this.data = data;
-      console.log(data)
+      console.log(data);
     }
   },
   mounted(){
@@ -150,6 +175,11 @@ export default {
     color: #222;
     overflow-y: scroll;
     height: 300px;
+  }
+  .kitTitleList{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
   }
   .feedbackSucess{
     background: rgb(124, 226, 124);
