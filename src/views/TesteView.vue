@@ -1,5 +1,8 @@
 <template>
     <div id="arrayToDo">
+        <v-card width="280px" class="cardsCriacao">
+          <p>Criar nova Lista</p>
+        </v-card>
         <TodoListPadrao :list="list" @mudar-risco="mudarRisco" v-for="list in data" :key="list.id"/>
     </div>
 </template>
@@ -145,10 +148,14 @@ export default {
     justify-content: space-around;
     align-items: center;
   }
-  .cardsPadrao{
-    background: #D9D9D9;
-    color: #222;
-    overflow-y: scroll;
+  .cardsCriacao{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    background: transparent;
+    border: 2px solid #D9D9D9;
+    color: #D9D9D9;
     height: 300px;
   }
   .kitTitleList{

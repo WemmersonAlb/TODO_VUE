@@ -1,7 +1,7 @@
 
 <template>
   <div id="arrayToDo">
-    <v-card max-width="300px" class="cardsPadrao" v-for="list in data" :key="list.id">
+    <v-card width="280px" class="cardsPadrao" v-for="list in data" :key="list.id">
       <v-template>
         <v-card-item>
           <v-card-title>
@@ -26,6 +26,8 @@
             <v-icon icon="mdi-pencil" color="grey-darken-4" @click="inicioEditItem(list.id, item)"></v-icon>
             <v-icon icon="mdi-delete" color="grey-darken-4" @click="deleteItem(list.id, item)"></v-icon>
           </div>
+          <v-text-field v-model="list.novoItemNome" v-show="list.novoItemTextShow" @keydown.enter="fimCriarItem(list.id)" @blur="fimCriarItem(list.id)"></v-text-field>
+          <v-icon color="grey-darken-4" icon="mdi-plus" @click="criarItem(list.id)" v-show="!list.novoItemTextShow"></v-icon>
         </v-card-item>
         <v-card-actions class="maeBtnSalvar">
           <v-btn variant="outlined" class="btnEndCard salvar" elevation="4" @click="salvarList(list.id)">Salvar</v-btn>
@@ -45,9 +47,29 @@ export default {
     }
   },
   methods: {
+    criarItem(idList){
+      this.data.forEach(el=>{
+        el.novoItemTextShow = el.id == idList;
+      });
+    },
+    fimCriarItem(idList){
+      this.data.forEach(el=>{
+        if(el.id == idList && el.novoItemTextShow){
+          el.novoItemTextShow = false;
+          const novoItem = {
+            id: `${el.allItems.length+1}`,
+            text: el.novoItemNome,
+            state: false
+          };
+          el.allItems.push(novoItem);
+        }
+      });
+    },
     async salvarList(idList){
       this.data.forEach(el=>{
         delete el.edit;
+        delete el.novoItemTextShow;
+        delete el.novoItemNome;
         el.allItems.forEach(it=>{
           delete it.edit;
         });
@@ -147,6 +169,8 @@ export default {
 
       data.forEach(el=>{
         el.edit = false;
+        el.novoItemTextShow = false;
+        el.novoItemNome = '';
         el.allItems.forEach(it=>{
           it.edit = false;
         })
