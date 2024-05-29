@@ -67,4 +67,24 @@ export default {
   .v-checkbox{
     margin-right: 10px;
   }
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+    background: #D9D9D9;
+  }
+   
+  ::-webkit-scrollbar-thumb {
+    background: #222; 
+    border-radius: 10px;
+  }
+  /*Pequenas telas e mobile*/
+  @media (max-width:700px){
+    .labelPadrao{
+      font-size: 14px;
+    }
+  }
 </style>

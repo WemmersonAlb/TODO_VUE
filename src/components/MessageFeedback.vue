@@ -29,7 +29,7 @@ export default {
     }
     #feedback{
         position: fixed;
-        bottom:100px;
+        bottom:70px;
         left:50px;
         padding: 15px;
         width: 300px;

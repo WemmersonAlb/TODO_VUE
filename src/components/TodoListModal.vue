@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-card width="400px" class="cardsPadrao">
+        <v-card class="cardsPadrao">
             <v-container>
               <v-card-item>
                 <v-card-title>
@@ -142,6 +142,20 @@ export default {
   .salvar:hover{
     background: #2222223d;
   }
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+    background: #D9D9D9;
+  }
+   
+  ::-webkit-scrollbar-thumb {
+    background: #222; 
+    border-radius: 10px;
+  }
   /* Exibição padrão */
   .cardsPadrao{
     background: #D9D9D9;
@@ -150,5 +164,15 @@ export default {
     height: 400px;
     width: 350px;
     box-shadow: 2px 10px 5px rgba(0, 0, 0, 0.63);
+  }
+  /* Telas pequenas e mobile */
+  @media (max-width:700px){
+    .cardsPadrao{
+      height: 300px;
+      width: 280px;
+    }
+    .labelPadrao{
+      font-size: 14px;
+    }
   }
 </style>

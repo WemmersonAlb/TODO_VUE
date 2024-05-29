@@ -17,7 +17,7 @@
           
   
           <MessageFeedback 
-            v-show="msg"
+            v-show="titleMsg"
             :msg="msg" 
             :tipoStatus="tipoStatus" 
             :titleMsg="titleMsg"/>
@@ -95,7 +95,7 @@ export default {
           const fade = document.querySelector('#fade');
           fade.style.display="flex";
         },
-        fecharModal(idList){
+        fecharModal(idList, code){
           this.data.forEach(el=>{
             if(el.id == idList){
               el.showModal = false;
@@ -103,6 +103,17 @@ export default {
           });
           const fade = document.querySelector('#fade');
           fade.style.display="none";
+          if(code == 0){
+            this.titleMsg = 'Lista deletada';
+            this.tipoStatus = 'delete';
+            setTimeout(()=>this.titleMsg='', 2000);
+          }else{
+            this.titleMsg='Lista fechada';
+            this.msg='Nenhuma edição foi salva';
+            this.tipoStatus='update';
+            setTimeout(()=>this.titleMsg='', 2000);
+          }
+
         },
         async salvarList(idList){
           this.fecharModal(idList);
@@ -123,15 +134,21 @@ export default {
           const res = await req.json();
           console.log(res);
           this.getAllLists();
+
+          this.titleMsg='Mudanças aplicadas com sucesso';
+          this.tipoStatus='update';
+          setTimeout(()=>this.titleMsg='', 2000);
         },
         async deleteList(idList){
-          this.fecharModal(idList);
+          this.fecharModal(idList, 0);
           const req = await fetch(`https://makeyourburger-xxqo.onrender.com/allTodoList/${idList}`,{
               method: "DELETE"
           })
           const res = await req.json();
           console.log(res);
           this.getAllLists();
+
+          
         },
         async criarList(){
           const novaLista = {
@@ -152,10 +169,9 @@ export default {
           await this.getAllLists();
           this.mostrarModal(this.data[this.data.length-1].id);
           
-          this.msg='A sua nova lista foi criada com sucesso!';
           this.titleMsg='Nova lista criada!';
           this.tipoStatus='create';
-          setTimeout(()=>this.msg='', 4000);
+          setTimeout(()=>this.titleMsg='', 2000);
         },
         inicioEditTitle(idList){
         this.data.forEach(el=>{
@@ -307,11 +323,12 @@ export default {
   }
   .modal{
     display:flex;
-    margin:30px auto;
+    margin:150px auto 0 auto;
     flex-direction:column;
     z-index:3;
     position:fixed;
     padding:1rem;
+    top: 0;
   }
   p{
     margin-left: 10px;
@@ -388,13 +405,27 @@ export default {
   }
   
   /*Scroll bar*/
-  .scrollBar::-webkit-scrollbar{
-    width: 5px;
-  }
-  .scrollBar::-webkit-scrollbar-track{
+  ::-webkit-scrollbar {
+    width: 5px;  }
+  
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
     background: #D9D9D9;
   }
-  .scrollBar::-webkit-scrollbar-thumb{
-    background: #222;
+   
+  ::-webkit-scrollbar-thumb {
+    background: #222; 
+    border-radius: 10px;
+  }
+  /* Pequenas telas */
+  @media (max-width: 900px){
+    #arrayToDo{
+      margin-top: 40px;
+    }
+    .modal{
+      top: 0;
+      margin-top: 150px;
+    }
   }
 </style>

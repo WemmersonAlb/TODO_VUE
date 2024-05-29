@@ -27,4 +27,16 @@ export default {
         align-items: center;
         padding-left: 30px;
     }
+    /* Pequenas telas e mobile */
+    @media (max-width:600px){
+        img{
+            height: 30px;
+        }
+        h1{
+            font-size: 20px;
+        }
+        nav{
+            height: 50px;
+        }
+    }
 </style>
