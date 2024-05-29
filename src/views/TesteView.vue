@@ -111,7 +111,10 @@ export default {
             this.titleMsg='Lista fechada';
             this.msg='Nenhuma edição foi salva';
             this.tipoStatus='update';
-            setTimeout(()=>this.titleMsg='', 2000);
+            setTimeout(()=>{
+              this.titleMsg='';
+              this.msg='';
+            }, 2000);
           }
 
         },
