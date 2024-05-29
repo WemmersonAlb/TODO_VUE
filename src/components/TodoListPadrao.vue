@@ -1,9 +1,9 @@
 <template>
     <div>
-        <v-card max-width="300px" class="cardsPadrao" >
-            <v-template>
+        <v-card width="280px" class="cardsPadrao" >
+            <v-container>
               <v-card-item>
-                <v-card-title>
+                <v-card-title @click="mostrarModal(list.id)">
                       <h1 class="titleCard">{{list.title}}</h1>                      
                 </v-card-title>
               </v-card-item>
@@ -16,7 +16,7 @@
                   </v-checkbox>
                 </div>
               </v-card-item>
-            </v-template>
+            </v-container>
           </v-card>
     </div>
 </template>
@@ -29,11 +29,17 @@ export default {
     methods: {
         mudarRisco(idList, item){
             this.$emit('mudar-risco', {p1: idList, p2: item});
+        },
+        mostrarModal(idList){
+          this.$emit('mostrar-modal', idList);
         }
     },
 }
 </script>
 <style scoped>
+.v-card-title{
+  cursor: pointer;
+}
 .cardsPadrao{
     background: #D9D9D9;
     color: #222;

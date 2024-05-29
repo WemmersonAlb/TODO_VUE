@@ -1,45 +1,161 @@
 <template>
     <div id="arrayToDo">
         <v-card width="280px" class="cardsCriacao">
-          <p>Criar nova Lista</p>
+          <v-icon icon="mdi-playlist-plus" color="D9D9D9" @click="criarList" class="criarList"></v-icon>
+          <p @click="criarList" class="criarList">Criar nova Lista</p>
         </v-card>
-        <TodoListPadrao :list="list" @mudar-risco="mudarRisco" v-for="list in data" :key="list.id"/>
+        <TodoListPadrao 
+          :list="list" 
+          @mudar-risco="mudarRisco" 
+          @mostrar-modal="mostrarModal"
+          v-for="(list, id) in reversedItems()" 
+          :key="id"
+          class="scrollBar"/>    
+        
+  
+        <div id="fade"></div>
+          
+  
+          <MessageFeedback 
+            v-show="msg"
+            :msg="msg" 
+            :tipoStatus="tipoStatus" 
+            :titleMsg="titleMsg"/>
+          
+          <TodoListModal 
+            v-show="list.showModal"
+            :list="list" 
+            v-for="list in data" 
+            :key="list.id"
+            @fechar-modal="fecharModal"
+            @delete-list="deleteList"
+            @salvar-list="salvarList"
+            @criar-item="criarItem"
+            @fim-criar-item="fimCriarItem"
+            @delete-item="deleteItem"
+            @inicio-edit-item="inicioEditItem"
+            @fim-edit-item="fimEditItem"
+            @mudar-risco="mudarRiscoModal"
+            @teste="teste"
+            @inicio-edit-title="inicioEditTitle"
+            @fim-edit-title="fimEditTitle"
+            class="modal scrollBar"/>
+
+      
     </div>
 </template>
 <script>
+import MessageFeedback from '../components/MessageFeedback.vue';
+import TodoListModal from '../components/TodoListModal.vue';
 import TodoListPadrao from '../components/TodoListPadrao.vue';
+
 export default {
     components:{
-        TodoListPadrao
+        TodoListPadrao,
+        TodoListModal,
+        MessageFeedback
     },
     data(){
         return{
-        check1: true,
-        riscadoOuNao: 'riscado',
-        data: null
+          msg: '',
+          titleMsg:'',
+          tipoStatus:'',
+          riscadoOuNao: 'riscado',
+          data: null
         }
     },
     methods: {
+        reversedItems() {
+          return this.data ? this.data.slice().reverse(): [];
+        },
+        criarItem(idList){
+          this.data.forEach(el=>{
+            el.novoItemTextShow = el.id == idList;
+          });
+        },
+        fimCriarItem(idList){
+          this.data.forEach(el=>{
+            if(el.id == idList && el.novoItemTextShow){
+              el.novoItemTextShow = false;
+              const novoItem = {
+                id: `${el.allItems.length+1}`,
+                text: el.novoItemNome,
+                state: false
+              };
+              el.allItems.push(novoItem);
+            }
+          });
+        },
+        mostrarModal(idList){
+          this.data.forEach(el=>{
+            if(el.id == idList){
+              el.showModal = true;
+            }
+          });
+          const fade = document.querySelector('#fade');
+          fade.style.display="flex";
+        },
+        fecharModal(idList){
+          this.data.forEach(el=>{
+            if(el.id == idList){
+              el.showModal = false;
+            }
+          });
+          const fade = document.querySelector('#fade');
+          fade.style.display="none";
+        },
         async salvarList(idList){
-        this.data.forEach(el=>{
-            delete el.edit;
-            el.allItems.forEach(it=>{
-            delete it.edit;
-            });
-        });
-        const listToUpdate = this.data.find(list=>list.id === idList);
-        const dataJson = JSON.stringify(listToUpdate);
-        const req = await fetch(`https://makeyourburger-xxqo.onrender.com/allTodoList/${idList}`,{
-            method: "PUT",
-            headers: { "Content-Type" : "application/Json" },
-            body: dataJson
-        })
-        const res = await req.json();
-        console.log(res);
-        this.getAllLists();
+          this.fecharModal(idList);
+          this.data.forEach(el=>{
+              delete el.edit;
+              delete el.showModal;
+              el.allItems.forEach(it=>{
+                delete it.edit;
+              });
+          });
+          const listToUpdate = this.data.find(list=>list.id === idList);
+          const dataJson = JSON.stringify(listToUpdate);
+          const req = await fetch(`https://makeyourburger-xxqo.onrender.com/allTodoList/${idList}`,{
+              method: "PUT",
+              headers: { "Content-Type" : "application/Json" },
+              body: dataJson
+          })
+          const res = await req.json();
+          console.log(res);
+          this.getAllLists();
         },
         async deleteList(idList){
-
+          this.fecharModal(idList);
+          const req = await fetch(`https://makeyourburger-xxqo.onrender.com/allTodoList/${idList}`,{
+              method: "DELETE"
+          })
+          const res = await req.json();
+          console.log(res);
+          this.getAllLists();
+        },
+        async criarList(){
+          const novaLista = {
+            title:'Nova lista',
+            allItems:[{
+              text:'Novo item',
+              state:false
+            }]
+          }
+          const dataJson = JSON.stringify(novaLista);
+          const req = await fetch("https://makeyourburger-xxqo.onrender.com/allTodoList",{
+                method: "POST",
+                headers: { "Content-Type" : "application/Json" },
+                body: dataJson
+          });
+          const res = req.json();
+          console.log(res);
+          await this.getAllLists();
+          this.mostrarModal(this.data[this.data.length-1].id);
+          
+          this.msg='A sua nova lista foi criada com sucesso!';
+          this.titleMsg='Nova lista criada!';
+          this.tipoStatus='create';
+          setTimeout(()=>this.msg='', 4000);
         },
         inicioEditTitle(idList){
         this.data.forEach(el=>{
@@ -56,37 +172,42 @@ export default {
             }
         });
         },
-        inicioEditItem(idList, item){
-        this.data.forEach(el=>{
-            if(el.id == idList){
-            el.allItems.forEach(it=>{
-                if(it.id == item.id){
-                it.edit = true;
-                }
-            })
-            }
-        });    
+        inicioEditItem(dados){
+          let idList = dados.p1;
+          let item = dados.p2;
+          this.data.forEach(el=>{
+              if(el.id == idList){
+              el.allItems.forEach(it=>{
+                  if(it.id == item.id){
+                  it.edit = true;
+                  }
+              })
+              }
+          });    
         },
-        fimEditItem(idList, item){
-        this.data.forEach(el => {
-            if(el.id == idList){
-            el.allItems.forEach(it =>{
-                if(it.id == item.id){
-                it.text = item.text;
-                it.edit = false;
-                }
-            });
-            }        
-        });
+        fimEditItem(dados){
+          let idList = dados.p1;
+          let item = dados.p2;
+          this.data.forEach(el => {
+              if(el.id == idList){
+              el.allItems.forEach(it =>{
+                  if(it.id == item.id){
+                  it.text = item.text;
+                  it.edit = false;
+                  }
+              });
+              }        
+          });
         },
-        async deleteItem(idList, item){
-
-        this.data.forEach(el=>{
-            if(el.id == idList){
-            let index = el.allItems.findIndex(obj=>obj.id == item.id);
-            el.allItems.splice(index, 1);
-            }
-        });
+        async deleteItem(dados){
+          let idList = dados.p1;
+          let item = dados.p2;
+          this.data.forEach(el=>{
+              if(el.id == idList){
+              let index = el.allItems.findIndex(obj=>obj.id == item.id);
+              el.allItems.splice(index, 1);
+              }
+          });
         },
         async mudarRisco(dados){
             let item = dados.p2;
@@ -116,7 +237,21 @@ export default {
             console.log(res);
             this.getAllLists();
         },
-
+        async mudarRiscoModal(dados){
+            let item = dados.p2;
+            let idList = dados.p1;
+            item.state = !item.state;
+            
+            this.data.forEach(el => {
+                if(el.id == idList){
+                el.allItems.forEach(it =>{
+                    if(it.id == item.id){
+                    it.state = !it.state;
+                    }
+                });
+                }        
+            });
+        },
         teste(a){alert(a?'editar':'deletar')},
 
         async getAllLists(){
@@ -125,6 +260,7 @@ export default {
 
         data.forEach(el=>{
             el.edit = false;
+            el.showModal = false;
             el.allItems.forEach(it=>{
             it.edit = false;
             })
@@ -143,10 +279,45 @@ export default {
   #arrayToDo{
     max-width: 80%;
     margin: 100px auto;
+    gap: 20px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
+    z-index:1;
+  }
+  #rowReverse{
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    width: 100%;
+    flex-wrap: wrap-reverse;
+
+  }
+  #fade{
+    display:none;
+    background:  #0000007c;
+    background-size: cover;
+    z-index:2;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+  }
+  .modal{
+    display:flex;
+    margin:30px auto;
+    flex-direction:column;
+    z-index:3;
+    position:fixed;
+    padding:1rem;
+  }
+  p{
+    margin-left: 10px;
+  }
+  .criarList{
+    cursor: pointer;
   }
   .cardsCriacao{
     display: flex;
@@ -216,4 +387,14 @@ export default {
     background: #2222223d;
   }
   
+  /*Scroll bar*/
+  .scrollBar::-webkit-scrollbar{
+    width: 5px;
+  }
+  .scrollBar::-webkit-scrollbar-track{
+    background: #D9D9D9;
+  }
+  .scrollBar::-webkit-scrollbar-thumb{
+    background: #222;
+  }
 </style>
